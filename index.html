@@ -20,9 +20,9 @@
     <!-- SheetJS (Excel) -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     
-    <!-- Google API untuk Drive (Panggilan Diperbarui) -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
+    <!-- Google API untuk Drive -->
+    <script async defer src="https://apis.google.com/js/api.js"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
     <script>
         tailwind.config = {
@@ -698,25 +698,19 @@
         const GOOGLE_CLIENT_ID = '819898854940-30is2u3p7o7ipqqfopvpfpi4gdms7e54.apps.googleusercontent.com'; // <--- TIM IT: UBAH INI
         let tokenClient;
 
+        function gisLoaded() {
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/drive.file',
+                    callback: '', // defined dynamically later
+                });
+            } catch(e) { console.log("Google SDK load failed", e) }
+        }
+
         async function simpanKeGoogleDrive() {
-            if (GOOGLE_CLIENT_ID.includes('MASUKKAN_CLIENT_ID')) {
-                tampilkanModal("Info Tim IT", "Client ID Google API belum dikonfigurasi dalam source code.");
-                return;
-            }
-
-            // Inisialisasi tokenClient SAAT tombol ditekan (menghindari error urutan baca / Race Condition)
-            if (!tokenClient && window.google && window.google.accounts) {
-                try {
-                    tokenClient = google.accounts.oauth2.initTokenClient({
-                        client_id: GOOGLE_CLIENT_ID,
-                        scope: 'https://www.googleapis.com/auth/drive.file',
-                        callback: '', // diisi nanti
-                    });
-                } catch(e) { console.log(e); }
-            }
-
-            if(!tokenClient) {
-                tampilkanModal("Error", "Gagal memuat Google Services. Pastikan Anda terhubung ke internet dan tidak memblokir script."); 
+            if (GOOGLE_CLIENT_ID.includes('819898854940-30is2u3p7o7ipqqfopvpfpi4gdms7e54.apps.googleusercontent.com')) {
+                tampilkanModal("Info Tim IT", "Client ID Google API belum dikonfigurasi dalam source code. Fitur Google Drive memerlukan Client ID OAuth 2.0 yang valid.");
                 return;
             }
 
@@ -761,6 +755,10 @@
                 tampilkanModal("Info", "Belum ada catatan apapun (Transaksi/Harapan) untuk disimpan ke Drive."); return;
             }
 
+            if(!tokenClient) {
+                tampilkanModal("Error", "Gagal memuat Google Services."); return;
+            }
+
             // Callback handler for OAuth
             tokenClient.callback = async (resp) => {
                 if (resp.error !== undefined) {
@@ -799,11 +797,11 @@
                 }
             };
 
-            // Request Token (Memunculkan Pop-up Login)
+            // Request Token
             if (google.accounts.oauth2.hasGrantedAllScopes(tokenClient, 'https://www.googleapis.com/auth/drive.file')) {
-                tokenClient.requestAccessToken({prompt: ''}); 
+                tokenClient.requestAccessToken({prompt: ''}); // Auto login if already granted
             } else {
-                tokenClient.requestAccessToken({prompt: 'consent'}); 
+                tokenClient.requestAccessToken({prompt: 'consent'}); // Prompt user for permission
             }
         }
         // === END OF GOOGLE DRIVE LOGIC ===
@@ -1652,8 +1650,4 @@
     </script>
 </body>
 </html>
-
-nah ini error lagi kenapa yah padahal pas diklik yang keluarin pop up dari googlenya bisa dan normal
-
-There is a file you can reference named "1000211944.jpg". Refer to this file by its name verbatim.
 ```
