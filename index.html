@@ -38,7 +38,7 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
         body { background-color: #f8fafc; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         .page-enter { animation: fadeSlideUp 0.4s ease-out forwards; }
@@ -97,11 +97,18 @@
             <div class="absolute -bottom-10 -left-10 bg-emas-50 w-32 h-32 rounded-full blur-2xl"></div>
             
             <div class="relative">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-2xl bg-mitra-100 mb-4 shadow-inner">
-                    <i class="ph-fill ph-user-circle-gear text-4xl text-mitra-600"></i>
+                <!-- Desain Tipografi Logo Baru -->
+                <div class="mx-auto flex flex-col items-center justify-center bg-white p-5 rounded-[2rem] shadow-md border-2 border-slate-100 mb-6 relative overflow-hidden transform rotate-[-2deg]">
+                    <div class="absolute -right-2 -top-2 bg-emas-400 w-8 h-8 rounded-full opacity-20"></div>
+                    <div class="absolute -left-2 -bottom-2 bg-mitra-600 w-6 h-6 rounded-full opacity-10"></div>
+                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight uppercase leading-none">
+                        <span class="text-slate-900 block drop-shadow-sm">Capai</span>
+                        <span class="text-emas-500 block drop-shadow-sm mt-1">Harapan</span>
+                        <span class="text-mitra-600 block drop-shadow-sm mt-1">Juwara</span>
+                    </h1>
                 </div>
-                <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Panduan Juwara</h2>
-                <p class="text-sm text-slate-500">Masukkan Username Mitra untuk memuat atau menyimpan tabungan luring (offline) maupun daring.</p>
+
+                <p class="text-sm text-slate-500 font-medium">Masukkan Username Mitra untuk memuat atau menyimpan tabungan luring (offline) maupun daring.</p>
             </div>
             
             <div class="space-y-4 relative">
@@ -200,7 +207,7 @@
         </div>
 
         <!-- MAIN SCROLLABLE CONTENT -->
-        <main class="flex-1 overflow-y-auto px-4 sm:px-6 pt-5 pb-8 relative z-10">
+        <main class="flex-1 overflow-y-auto px-4 sm:px-6 pt-5 relative z-10">
             <div class="max-w-2xl mx-auto w-full">
 
                 <!-- BAB 1: EDUKASI (RAHASIA KEUANGAN) -->
@@ -424,10 +431,12 @@
                         <p class="text-xs text-slate-500 mt-1">Kelola dan pantau banyak harapan sekaligus.</p>
                     </div>
 
-                    <!-- BANNER INTEGRASI TRX -->
+                    <!-- BANNER INTEGRASI TRX (UPDATED LOGIC) -->
                     <div class="bg-gradient-to-r from-emerald-500 to-teal-500 p-4 rounded-2xl text-white shadow-md flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] font-medium text-emerald-100 flex items-center gap-1 mb-0.5"><i class="ph-fill ph-wallet"></i> Kapasitas Tabungan (<span id="lbl-stmj-pct">12%</span>) Aktual</span>
+                            <span class="text-[10px] font-medium text-emerald-100 flex items-center gap-1 mb-0.5" id="stmj-banner-title">
+                                <i class="ph-fill ph-wallet"></i> Kapasitas Tabungan (<span id="lbl-stmj-pct">12%</span>) Aktual
+                            </span>
                             <strong id="stmj-12-val" class="text-2xl font-extrabold block">Rp 0</strong>
                             <span class="text-[10px] text-emerald-100 block mt-1">Total Pemasukan Bersih Bulan Ini: <strong id="stmj-12-untung">Rp 0</strong></span>
                         </div>
@@ -596,6 +605,18 @@
                     </div>
                 </section>
                 
+                <!-- FOOTER BRANDING GLOBAL -->
+                <div class="mt-12 pt-6 border-t border-slate-200 text-center pb-8">
+                    <p class="text-xs font-bold text-slate-800 flex items-center justify-center gap-1.5">
+                        <i class="ph-fill ph-lightning text-emas-500 text-sm"></i> Powered by Juwara Mitra Bukalapak
+                    </p>
+                    <div class="mt-2.5 flex justify-center items-center gap-3 text-[10px] text-mitra-600 font-semibold">
+                        <a href="./terms.html" class="hover:underline hover:text-mitra-700 transition">Syarat & Ketentuan</a>
+                        <span class="text-slate-300">•</span>
+                        <a href="./privacy.html" class="hover:underline hover:text-mitra-700 transition">Kebijakan Privasi</a>
+                    </div>
+                </div>
+
             </div>
         </main>
 
@@ -703,13 +724,13 @@
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: GOOGLE_CLIENT_ID,
                     scope: 'https://www.googleapis.com/auth/drive.file',
-                    callback: '', // defined dynamically later
+                    callback: '', 
                 });
             } catch(e) { console.log("Google SDK load failed", e) }
         }
 
         async function simpanKeGoogleDrive() {
-            if (GOOGLE_CLIENT_ID.includes('819898854940-30is2u3p7o7ipqqfopvpfpi4gdms7e54.apps.googleusercontent.com')) {
+            if (GOOGLE_CLIENT_ID.includes('MASUKKAN_CLIENT_ID')) {
                 tampilkanModal("Info Tim IT", "Client ID Google API belum dikonfigurasi dalam source code. Fitur Google Drive memerlukan Client ID OAuth 2.0 yang valid.");
                 return;
             }
@@ -799,12 +820,11 @@
 
             // Request Token
             if (google.accounts.oauth2.hasGrantedAllScopes(tokenClient, 'https://www.googleapis.com/auth/drive.file')) {
-                tokenClient.requestAccessToken({prompt: ''}); // Auto login if already granted
+                tokenClient.requestAccessToken({prompt: ''}); 
             } else {
-                tokenClient.requestAccessToken({prompt: 'consent'}); // Prompt user for permission
+                tokenClient.requestAccessToken({prompt: 'consent'}); 
             }
         }
-        // === END OF GOOGLE DRIVE LOGIC ===
 
         function tampilkanModal(judul, pesan) {
             document.getElementById('modal-title').innerText = judul;
@@ -846,7 +866,6 @@
             let u = document.getElementById('login-username').value.trim().toLowerCase();
             if(!u) { tampilkanModal("Perhatian", "Username tidak boleh kosong!"); return; }
             
-            // Hardcoded whitelist restriction
             if(u !== 'riadiantasa') {
                 tampilkanModal("Akses Ditolak", "Maaf, username Anda tidak terdaftar. Hubungi admin untuk akses.");
                 return;
@@ -856,7 +875,7 @@
             btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memuat...'; btn.disabled = true;
 
             currentUsername = u;
-            localStorage.setItem('juwara_last_user', u); // Save to local storage memory
+            localStorage.setItem('juwara_last_user', u); 
             
             await initLocalDB();
             let dataDitemukan = false;
@@ -897,7 +916,6 @@
             btn.innerHTML = 'Masuk <i class="ph-bold ph-arrow-right"></i>'; btn.disabled = false;
         }
 
-        // Auto login on app load if previously logged in
         window.addEventListener('DOMContentLoaded', async () => {
             let lastUser = localStorage.getItem('juwara_last_user');
             if(lastUser) {
@@ -936,7 +954,6 @@
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('onboarding-screen').classList.add('hidden');
                 
-                // Set default date for transaction to today
                 document.getElementById('inp-trx-tgl').valueAsDate = new Date();
                 
                 renderUI(); navigasiKe('page-edukasi');
@@ -946,7 +963,7 @@
         function prosesLogout() {
             if(firestoreUnsubscribe) firestoreUnsubscribe();
             currentUsername = "";
-            localStorage.removeItem('juwara_last_user'); // Delete from memory
+            localStorage.removeItem('juwara_last_user'); 
             State = { juraganName: "", warungName: "", kapasitasBulanSimulasi: 0, harapans: [], transactions: [], activeHarapanId: null, alokasi: { modalBerjalan: 40, modalTetap: 20, pokok: 20, tabungan: 12, gayaHidup: 8 } };
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('onboarding-screen').classList.add('hidden');
@@ -962,10 +979,75 @@
             masukKeAplikasi(true);
         }
 
+        // ==========================================
+        // FUNGSI UPDATE LOGIKA PRIORITAS & BANNER
+        // ==========================================
+        function sortHarapans() {
+            if(!State.harapans || State.harapans.length === 0) return;
+            
+            const rekap = getRekapActuals();
+            const jatahTabunganHari = (rekap.untungBulan * (State.alokasi.tabungan / 100)) / 30;
+            let cap = jatahTabunganHari > 0 ? jatahTabunganHari : ((State.kapasitasBulanSimulasi||0)/30 || 1);
+
+            State.harapans.sort((a, b) => {
+                let tA = new Date(a.deadline).getTime();
+                let tB = new Date(b.deadline).getTime();
+                
+                // Prioritas 1: Tanggal pencapaian terdekat (deadline)
+                if (tA !== tB) return tA - tB;
+                
+                // Prioritas 2: Paling masuk akal sesuai dengan tabungan (opsional)
+                const daysA = Math.max(1, Math.ceil((tA - new Date().getTime()) / 86400000));
+                const sisaA = Math.max(0, a.target - (a.trackerData||[]).reduce((sum, i) => sum + (i.nominal || 0), 0));
+                const needA = sisaA / daysA;
+                
+                const daysB = Math.max(1, Math.ceil((tB - new Date().getTime()) / 86400000));
+                const sisaB = Math.max(0, b.target - (b.trackerData||[]).reduce((sum, i) => sum + (i.nominal || 0), 0));
+                const needB = sisaB / daysB;
+                
+                return Math.abs(needA - cap) - Math.abs(needB - cap);
+            });
+        }
+
+        function updateBannerPrioritas() {
+            const rekap = getRekapActuals();
+            const persenTabungan = (State.alokasi.tabungan / 100);
+            const jatahTabungan = rekap.untungBulan * persenTabungan;
+            
+            const untungEl = document.getElementById('stmj-12-untung');
+            if(untungEl) untungEl.innerText = formatRp(rekap.untungBulan);
+
+            const bannerTitle = document.getElementById('stmj-banner-title');
+            const bannerVal = document.getElementById('stmj-12-val');
+
+            if(State.harapans && State.harapans.length > 0) {
+                let h = State.harapans[0]; // Karena sudah di-sort, urutan [0] adalah Prioritas Tertinggi
+                const daysLeft = Math.max(1, Math.ceil((new Date(h.deadline) - new Date()) / 86400000));
+                let sisaTarget = Math.max(0, h.target - (h.trackerData||[]).reduce((sum, i) => sum + (i.nominal || 0), 0));
+                
+                let butuh = 0;
+                let suffix = '';
+                if (h.frekuensi === 'bulanan') {
+                    const monthsLeft = Math.max(1, daysLeft / 30);
+                    butuh = sisaTarget / monthsLeft;
+                    suffix = ' / bln';
+                } else {
+                    butuh = sisaTarget / daysLeft;
+                    suffix = ' / hari';
+                }
+
+                if(bannerTitle) bannerTitle.innerHTML = `<i class="ph-fill ph-target text-sm"></i> Target Prioritas: ${h.name}`;
+                if(bannerVal) bannerVal.innerText = formatRp(butuh) + suffix;
+            } else {
+                if(bannerTitle) bannerTitle.innerHTML = `<i class="ph-fill ph-wallet"></i> Kapasitas Tabungan (<span id="lbl-stmj-pct">${State.alokasi.tabungan}%</span>) Aktual`;
+                if(bannerVal) bannerVal.innerText = formatRp(jatahTabungan);
+            }
+        }
+        // ==========================================
+
         function renderUI() {
             document.getElementById('header-juragan-name').innerText = State.juraganName;
             
-            // Sync values to inputs securely ensuring they are ints
             document.getElementById('inp-alo-modalBerjalan').value = parseInt(State.alokasi.modalBerjalan) || 0;
             document.getElementById('inp-alo-modalTetap').value = parseInt(State.alokasi.modalTetap) || 0;
             document.getElementById('inp-alo-pokok').value = parseInt(State.alokasi.pokok) || 0;
@@ -1066,7 +1148,6 @@
             let tglInp = document.getElementById('inp-trx-tgl').value;
             if(!tglInp) { tampilkanModal("Perhatian", "Pilih tanggal transaksi terlebih dahulu!"); return; }
             
-            // Format datetime keeping the selected date
             let timestamp = new Date(tglInp + 'T12:00:00').toISOString();
 
             let name = document.getElementById('inp-trx-nama').value.trim();
@@ -1089,13 +1170,12 @@
                 if(price <= 0 || profit <= 0) { tampilkanModal("Perhatian", "Harga Jual dan Untung harus lebih besar dari 0!"); return; }
                 if(profit > price) { tampilkanModal("Perhatian", "Untung tidak logis (lebih besar dari harga jual)!"); return; }
             } else {
-                // Logic untuk pemasukan lain
                 let cat = document.getElementById('inp-trx-l-kategori').value;
                 if(cat === 'Lainnya' && !name) { tampilkanModal("Perhatian", "Tulis jenis pemasukannya!"); return; }
                 name = cat === 'Lainnya' ? name : `${cat} ${name ? '('+name+')' : ''}`;
                 
                 if(profit <= 0) { tampilkanModal("Perhatian", "Nominal pemasukan harus diisi dan lebih dari 0!"); return; }
-                price = profit; // Untuk pemasukan lain, nominal adalah total harga/profit
+                price = profit; 
             }
 
             const newTrx = { id: Date.now(), type: trxActiveTab, name: name, price: price, profit: profit, qty: qty, timestamp: timestamp };
@@ -1136,7 +1216,6 @@
             const list = document.getElementById('trx-list'); list.innerHTML = '';
             const rekap = getRekapActuals();
 
-            // Sort displaying newest date first
             let sortedTrx = [...State.transactions].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             sortedTrx.forEach((t, index) => {
@@ -1147,7 +1226,7 @@
                 if(t.type === 'virtual') iconClass = 'ph-device-mobile';
                 if(t.type === 'lain') iconClass = 'ph-wallet text-green-500';
 
-                if(index < 15) { // Tampilkan 15 terakhir
+                if(index < 15) { 
                     list.innerHTML += `
                         <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm mb-2">
                             <div class="w-2/3 pr-2">
@@ -1172,10 +1251,7 @@
             document.getElementById('rek-untung-minggu').innerText = formatRp(rekap.untungMinggu);
             document.getElementById('rek-untung-bulan').innerText = formatRp(rekap.untungBulan);
 
-            const persenTabungan = (State.alokasi.tabungan / 100);
-            const jatahTabungan = rekap.untungBulan * persenTabungan;
-            document.getElementById('stmj-12-val').innerText = formatRp(jatahTabungan);
-            document.getElementById('stmj-12-untung').innerText = formatRp(rekap.untungBulan);
+            updateBannerPrioritas(); // Panggil update logika prioritas
         }
 
         function hitungCepat() {
@@ -1195,6 +1271,7 @@
         }
 
         function renderHarapanUI() {
+            sortHarapans(); // Urutkan berdasarkan prioritas sebelum merender
             const tabs = document.getElementById('harapan-tabs');
             const formContainer = document.getElementById('form-harapan');
             const trackerSection = document.getElementById('tracker-section');
@@ -1206,14 +1283,20 @@
                 formContainer.classList.remove('hidden'); trackerSection.classList.add('hidden');
                 btnBatal.classList.add('hidden'); document.getElementById('form-harapan-title').innerText = "Buat Harapan Pertama";
             } else {
-                if(!State.activeHarapanId) State.activeHarapanId = State.harapans[0].id;
+                // Pastikan tab aktif di-set ke yang paling prioritas jika tidak ada ID aktif
+                if(!State.activeHarapanId || !State.harapans.find(h => h.id === State.activeHarapanId)) {
+                    State.activeHarapanId = State.harapans[0].id;
+                }
                 
-                State.harapans.forEach(h => {
+                State.harapans.forEach((h, idx) => {
                     const isActive = h.id === State.activeHarapanId;
                     const btn = document.createElement('button');
                     btn.onclick = () => { State.activeHarapanId = h.id; renderHarapanUI(); };
-                    btn.className = `shrink-0 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${isActive ? 'bg-mitra-600 text-white border-mitra-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`;
-                    btn.innerText = h.name;
+                    
+                    // Beri penanda visual untuk Prioritas Pertama
+                    let isPrioritas = (idx === 0);
+                    btn.className = `shrink-0 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border flex gap-1 items-center ${isActive ? 'bg-mitra-600 text-white border-mitra-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`;
+                    btn.innerHTML = `${isPrioritas ? '<i class="ph-fill ph-star text-emas-400"></i>' : ''} ${h.name}`;
                     tabs.appendChild(btn);
                 });
                 
@@ -1231,6 +1314,7 @@
                     renderTracker();
                 }
             }
+            updateBannerPrioritas(); // Perbarui banner STMJ
         }
 
         function bukaFormTambahHarapan() {
@@ -1423,6 +1507,7 @@
             let terkumpul = h.trackerData.reduce((sum, i) => sum + (i.nominal || 0), 0);
             let sisa = Math.max(0, h.target - terkumpul);
             document.getElementById('lbl-sisa-target').innerText = formatRp(sisa);
+            updateBannerPrioritas(); // Perbarui banner setiap nilai berubah
             hitungTotalGlobal();
         }
 
@@ -1556,7 +1641,7 @@
 
             document.getElementById('alo-total-bisnis').innerText = totBisnis + '%';
             document.getElementById('alo-total-keluarga').innerText = totKeluarga + '%';
-            document.getElementById('lbl-stmj-pct').innerText = a.tabungan + '%';
+            if(document.getElementById('lbl-stmj-pct') && State.harapans.length === 0) document.getElementById('lbl-stmj-pct').innerText = a.tabungan + '%';
             document.getElementById('lbl-sim-pct').innerText = a.tabungan + '%';
 
             const box = document.getElementById('alo-alert-box'), icon = document.getElementById('alo-alert-icon');
