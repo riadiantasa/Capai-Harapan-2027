@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -19,6 +20,10 @@
     <!-- SheetJS (Excel) -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     
+    <!-- Google API untuk Drive -->
+    <script async defer src="https://apis.google.com/js/api.js"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -162,15 +167,20 @@
             </div>
         </header>
 
-        <!-- SUB HEADER: MASTER EXPORT -->
+        <!-- SUB HEADER: MASTER EXPORT & GOOGLE DRIVE -->
         <div class="bg-slate-800 text-slate-200 px-4 py-2 flex justify-between items-center shrink-0 z-30 shadow-inner">
             <div class="flex items-center gap-2">
                 <i class="ph-bold ph-folder-open text-lg text-emas-400"></i>
-                <span class="text-[11px] font-semibold">Rekap & Dokumentasi Data</span>
+                <span class="text-[11px] font-semibold">Rekap Data</span>
             </div>
-            <button onclick="downloadSemuaLaporan()" class="bg-white/10 hover:bg-white/25 border border-white/20 px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex gap-1.5 items-center text-white active:scale-95">
-                <i class="ph-bold ph-microsoft-excel text-sm text-green-400"></i> Unduh Semua
-            </button>
+            <div class="flex items-center gap-1.5">
+                <button onclick="simpanKeGoogleDrive()" class="bg-blue-600 hover:bg-blue-500 border border-blue-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex gap-1.5 items-center text-white active:scale-95">
+                    <i class="ph-bold ph-google-drive-logo text-sm text-white"></i> Drive
+                </button>
+                <button onclick="downloadSemuaLaporan()" class="bg-white/10 hover:bg-white/25 border border-white/20 px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex gap-1.5 items-center text-white active:scale-95">
+                    <i class="ph-bold ph-microsoft-excel text-sm text-green-400"></i> Unduh Semua
+                </button>
+            </div>
         </div>
 
         <!-- GLOBAL PROGRESS BAR -->
@@ -683,6 +693,118 @@
         let trxActiveTab = 'fisik';
         let editingHarapanId = null;
         let confirmActionCallback = null;
+
+        // === GOOGLE DRIVE API VARS ===
+        const GOOGLE_CLIENT_ID = 'MASUKKAN_CLIENT_ID_GOOGLE_ANDA_DISINI.apps.googleusercontent.com'; // <--- TIM IT: UBAH INI
+        let tokenClient;
+
+        function gisLoaded() {
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/drive.file',
+                    callback: '', // defined dynamically later
+                });
+            } catch(e) { console.log("Google SDK load failed", e) }
+        }
+
+        async function simpanKeGoogleDrive() {
+            if (GOOGLE_CLIENT_ID.includes('MASUKKAN_CLIENT_ID')) {
+                tampilkanModal("Info Tim IT", "Client ID Google API belum dikonfigurasi dalam source code. Fitur Google Drive memerlukan Client ID OAuth 2.0 yang valid.");
+                return;
+            }
+
+            let wb = XLSX.utils.book_new();
+            let dataExists = false;
+
+            // Generate Sheet: Transaksi
+            if(State.transactions && State.transactions.length > 0) {
+                let dataTrx = State.transactions.map(t => ({
+                    'Tanggal': t.timestamp ? t.timestamp.substring(0, 10) : '-',
+                    'Kategori': t.type === 'fisik' ? 'Produk Fisik' : (t.type === 'virtual' ? 'Produk Virtual' : 'Pemasukan Lain'),
+                    'Nama / Keterangan': t.name,
+                    'Harga Jual (Rp)': t.type === 'lain' ? '-' : t.price,
+                    'Untung Bersih (Rp)': t.profit,
+                    'Jumlah (Qty)': t.qty,
+                    'Total Pemasukan (Rp)': t.profit * t.qty
+                }));
+                let wsTrx = XLSX.utils.json_to_sheet(dataTrx);
+                XLSX.utils.book_append_sheet(wb, wsTrx, "Semua Transaksi");
+                dataExists = true;
+            }
+
+            // Generate Sheets: Harapan
+            if(State.harapans && State.harapans.length > 0) {
+                State.harapans.forEach(h => {
+                    let dataH = h.trackerData.map(t => ({
+                        'Tanggal Setoran': t.tgl,
+                        'Nominal (Rp)': t.nominal,
+                        'Status Target': t.status ? 'Cukup' : 'Kurang',
+                        'Catatan': t.note || '-'
+                    }));
+                    if(dataH.length > 0) {
+                        let wsH = XLSX.utils.json_to_sheet(dataH);
+                        let safeSheetName = h.name.replace(/[\[\]\*\\\/\?]/g, '').substring(0, 25);
+                        XLSX.utils.book_append_sheet(wb, wsH, `STMJ_${safeSheetName}`);
+                        dataExists = true;
+                    }
+                });
+            }
+
+            if(!dataExists) {
+                tampilkanModal("Info", "Belum ada catatan apapun (Transaksi/Harapan) untuk disimpan ke Drive."); return;
+            }
+
+            if(!tokenClient) {
+                tampilkanModal("Error", "Gagal memuat Google Services."); return;
+            }
+
+            // Callback handler for OAuth
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    tampilkanModal("Akses Ditolak", "Gagal menghubungkan ke akun Google Anda.");
+                    return;
+                }
+                
+                tampilkanModal("Mengunggah...", "Sedang menyimpan laporan ke Google Drive Anda. Mohon tunggu sebentar.");
+
+                try {
+                    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const fileBlob = new Blob([excelBuffer], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+                    
+                    const metadata = {
+                        name: `Laporan_Juwara_${State.juraganName.replace(/\s+/g, '_')}.xlsx`,
+                        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    };
+                    
+                    const form = new FormData();
+                    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                    form.append('file', fileBlob);
+
+                    const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                        method: 'POST',
+                        headers: new Headers({ 'Authorization': 'Bearer ' + resp.access_token }),
+                        body: form,
+                    });
+
+                    if(res.ok) {
+                        tampilkanModal("Sukses", "Laporan berhasil diunggah ke Google Drive pribadi Anda!");
+                    } else {
+                        tampilkanModal("Gagal", "Terjadi kesalahan saat mengunggah ke Drive.");
+                    }
+                } catch(e) {
+                    tampilkanModal("Error", "Gagal mengunggah file. Pastikan koneksi internet Anda stabil.");
+                }
+            };
+
+            // Request Token
+            if (google.accounts.oauth2.hasGrantedAllScopes(tokenClient, 'https://www.googleapis.com/auth/drive.file')) {
+                tokenClient.requestAccessToken({prompt: ''}); // Auto login if already granted
+            } else {
+                tokenClient.requestAccessToken({prompt: 'consent'}); // Prompt user for permission
+            }
+        }
+        // === END OF GOOGLE DRIVE LOGIC ===
 
         function tampilkanModal(judul, pesan) {
             document.getElementById('modal-title').innerText = judul;
@@ -1528,3 +1650,4 @@
     </script>
 </body>
 </html>
+```
