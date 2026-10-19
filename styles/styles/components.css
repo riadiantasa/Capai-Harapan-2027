@@ -1,0 +1,119 @@
+/* =========================================================
+   KOMPONEN UI - hanya memakai variabel dari tokens.css
+   Pakai class ini di HTML (mis. class="card", "btn btn-primary")
+   ========================================================= */
+
+body { background: var(--surface-bg); color: var(--text-body); font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+
+/* ---------- Animasi & util ---------- */
+.page-enter { animation: fadeSlideUp .4s var(--ease) forwards; }
+@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.hide-scroll::-webkit-scrollbar { display: none; }
+.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+.chart-box { position: relative; width: 100%; height: 250px; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 12px); }
+
+/* ---------- Kartu ---------- */
+.card { background: var(--surface-card); border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 1rem; }
+.card-head { display: flex; justify-content: space-between; align-items: center; padding: .625rem 1rem;
+  color: #fff; font-weight: 700; font-size: .875rem; }
+.card-head.brand   { background: var(--brand-600); }
+.card-head.success { background: var(--success-600); }
+
+/* ---------- Form ---------- */
+.field-label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: .25rem; }
+.input { width: 100%; background: var(--surface-bg); border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); padding: .5rem .75rem; font-size: .875rem; font-weight: 500;
+  color: var(--text-strong); outline: none; transition: box-shadow var(--dur), background var(--dur); }
+.input:focus { background: #fff; box-shadow: 0 0 0 2px var(--brand-400); }
+.input-success { background: var(--success-50); border-color: var(--success-200); color: var(--success-700); font-weight: 700; }
+.input-success:focus { box-shadow: 0 0 0 2px var(--success-500); }
+
+/* ---------- Tombol ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; font-weight: 700;
+  border-radius: var(--radius-md); padding: .75rem 1rem; transition: transform .15s, background var(--dur); cursor: pointer; }
+.btn:active { transform: scale(.96); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn-block { width: 100%; }
+.btn-primary { background: var(--brand-600); color: #fff; box-shadow: var(--shadow-md); }
+.btn-primary:hover { background: var(--brand-700); }
+.btn-dark { background: var(--ink-dark); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-dark:hover { background: #334155; }
+.btn-ghost { background: var(--surface-muted); color: var(--text-body); border: 1px solid var(--border-color); }
+.btn-ghost:hover { background: var(--border-color); }
+.btn-danger { background: var(--danger-600); color: #fff; }
+.btn-sm { padding: .375rem .625rem; font-size: 10px; border-radius: var(--radius-sm); }
+.icon-btn { padding: .5rem; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); }
+.icon-btn-square { padding: .5rem .625rem; border-radius: var(--radius-md); border: 1px solid transparent; }
+.icon-btn-square.green { background: #d1fae5; color: var(--success-700); border-color: var(--success-200); }
+.icon-btn-square.amber { background: var(--gold-100); color: var(--gold-600); border-color: var(--warning-200); }
+.icon-btn-square.red   { background: #fee2e2; color: var(--danger-600); border-color: var(--danger-200); }
+
+/* ---------- Tab segmented ---------- */
+.seg { display: flex; background: #e2e8f0; border-radius: var(--radius-md); padding: .25rem; gap: .25rem; }
+.seg-btn { flex: 1; border-radius: var(--radius-sm); padding: .5rem 0; font-size: 12px; font-weight: 700;
+  color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: .25rem; transition: all var(--dur); }
+.seg-btn.active { background: #fff; color: var(--text-strong); box-shadow: var(--shadow-sm); }
+
+/* ---------- Stat tile ---------- */
+.stat-tile { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+  padding: .75rem; text-align: center; box-shadow: var(--shadow-sm); }
+.stat-label { display: block; font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: .25rem; }
+
+/* ---------- Progress ---------- */
+.progress-track { width: 100%; background: var(--surface-muted); border-radius: var(--radius-pill); height: .5rem; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: var(--radius-pill); background: var(--gradient-progress); transition: width .5s; }
+
+/* ---------- Alert kotak ---------- */
+.alert { display: flex; gap: .75rem; padding: 1rem; border-radius: var(--radius-lg); border: 1px solid; box-shadow: var(--shadow-sm); transition: all var(--dur); }
+.alert-success { background: var(--success-50); border-color: var(--success-200); }
+.alert-warning { background: var(--warning-50); border-color: var(--warning-200); }
+.alert-danger  { background: var(--danger-50);  border-color: var(--danger-200); }
+
+/* ---------- Modal ---------- */
+.modal-backdrop { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1rem;
+  background: rgba(15, 23, 42, .5); backdrop-filter: blur(4px); opacity: 0; transition: opacity var(--dur); }
+.modal-backdrop.hidden { display: none; }
+.modal-panel { background: #fff; border-radius: var(--radius-lg); box-shadow: 0 20px 40px rgba(0,0,0,.2);
+  max-width: 24rem; width: 100%; overflow: hidden; transform: scale(.95); transition: transform var(--dur); }
+.modal-backdrop.show { opacity: 1; }
+.modal-backdrop.show .modal-panel { transform: scale(1); }
+
+/* ---------- Navigasi bawah ---------- */
+.nav-btn { display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: .5rem; width: 20%; color: var(--text-faint); }
+.nav-btn.active { color: var(--brand-600); }
+.nav-fab { background: var(--ink-dark); color: #fff; border-radius: var(--radius-md); width: 3rem; height: 2.5rem;
+  display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); transition: transform .15s; }
+.nav-fab:active { transform: scale(.95); }
+
+/* =========================================================
+   STMJ+ : BANNER & DAFTAR PRIORITAS
+   ========================================================= */
+.stmj-banner { background: var(--gradient-success); color: #fff; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md); padding: 1rem; }
+.stmj-banner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.stmj-banner-cell { padding: 0 .25rem; min-width: 0; }
+.stmj-banner-cell + .stmj-banner-cell { border-left: 1px solid rgba(255,255,255,.25); padding-left: 1rem; }
+.stmj-banner-label { display: flex; align-items: center; gap: .25rem; font-size: 10px; font-weight: 500;
+  color: rgba(255,255,255,.85); line-height: 1.2; min-height: 2.4em; }
+.stmj-banner-value { display: block; font-size: 1.2rem; font-weight: 800; line-height: 1.2; margin-top: .25rem; word-break: break-word; }
+.stmj-banner-sub { display: block; font-size: 10px; color: rgba(255,255,255,.85); margin-top: .35rem; line-height: 1.3; }
+.stmj-banner-sub strong { color: #fff; }
+
+.prio-list { display: flex; flex-direction: column; gap: .5rem; }
+.prio-card { text-align: left; width: 100%; background: var(--surface-card); border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); padding: .75rem; box-shadow: var(--shadow-sm); transition: all var(--dur); }
+.prio-card.active { border-color: var(--brand-600); box-shadow: 0 0 0 2px var(--brand-200); }
+.prio-card.top { background: linear-gradient(180deg, var(--gold-50), #fff); }
+.prio-rank { flex-shrink: 0; width: 1.75rem; height: 1.75rem; border-radius: var(--radius-pill); display: flex; align-items: center;
+  justify-content: center; font-size: 12px; font-weight: 800; background: var(--surface-muted); color: var(--text-muted); }
+.prio-card.top .prio-rank { background: var(--gold-400); color: #fff; }
+.prio-badge { font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .4rem;
+  border-radius: var(--radius-pill); background: var(--gold-100); color: var(--gold-600); }
+.prio-need { display: flex; justify-content: space-between; align-items: baseline; margin-top: .5rem; }
+.prio-need .label { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+.prio-need .value { font-size: .95rem; font-weight: 800; color: var(--brand-600); }
