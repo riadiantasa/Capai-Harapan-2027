@@ -96,7 +96,7 @@
             <div class="absolute -bottom-10 -left-10 bg-emas-50 w-32 h-32 rounded-full blur-2xl"></div>
             
             <div class="relative">
-                <!-- Desain Tipografi Logo Baru -->
+                <!-- Desain Tipografi Logo -->
                 <div class="mx-auto flex flex-col items-center justify-center bg-white p-5 rounded-[2rem] shadow-md border-2 border-slate-100 mb-6 relative overflow-hidden transform rotate-[-2deg]">
                     <div class="absolute -right-2 -top-2 bg-emas-400 w-8 h-8 rounded-full opacity-20"></div>
                     <div class="absolute -left-2 -bottom-2 bg-mitra-600 w-6 h-6 rounded-full opacity-10"></div>
@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    <!-- Halaman 2: Onboarding (Buat Profil Baru) -->
+    <!-- Halaman 2: Onboarding -->
     <div id="onboarding-screen" class="hidden absolute inset-0 bg-slate-50 z-[50] flex flex-col justify-center items-center p-6 page-enter">
         <div class="max-w-md w-full space-y-6 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 text-center relative overflow-hidden">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-2xl bg-emas-100 mb-4 shadow-inner">
@@ -315,6 +315,23 @@
 
                 <!-- BAB 2: CATAT TRANSAKSI -->
                 <section id="page-transaksi" class="hidden page-enter space-y-5">
+                    
+                    <!-- HABIT TRACKER: 1000 TRANSAKSI -->
+                    <div class="bg-gradient-to-r from-mitra-500 to-red-600 p-4 rounded-2xl text-white shadow-md mb-2 relative overflow-hidden">
+                        <i class="ph-fill ph-rocket-launch absolute -right-4 -bottom-4 text-7xl text-white/10"></i>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[11px] font-bold text-red-100 uppercase tracking-wider flex items-center gap-1"><i class="ph-bold ph-medal"></i> Misi Habit Rutin</span>
+                                <span class="text-xs font-extrabold bg-white/20 px-2 py-0.5 rounded-lg" id="habit-1000-text">0 / 1.000</span>
+                            </div>
+                            <h3 class="font-extrabold text-base mb-2">Target 1.000 Transaksi Virtual (Mitra Bukalapak)</h3>
+                            <div class="w-full bg-black/20 rounded-full h-2.5">
+                                <div id="habit-1000-bar" class="bg-emas-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <p class="text-[9px] text-red-100 mt-2 font-medium">*Dihitung dari jumlah qty terjual untuk produk virtual melalui Aplikasi MBL.</p>
+                        </div>
+                    </div>
+
                     <div class="text-center mb-4">
                         <h2 class="text-xl font-extrabold text-slate-800">Pencatatan Harian</h2>
                         <p class="text-xs text-slate-500 mt-1">Otomatiskan porsi tabungan Anda berdasarkan untung bersih.</p>
@@ -351,6 +368,15 @@
                             </select>
                         </div>
                         
+                        <!-- Pilihan Aplikasi MBL / Lainnya untuk Virtual -->
+                        <div id="trx-mbl-sel" class="hidden">
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Platform / Aplikasi yang Digunakan</label>
+                            <select id="inp-trx-v-mbl" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[12px] focus:ring-2 focus:ring-mitra-400 outline-none font-bold text-slate-700">
+                                <option value="true">✅ Aplikasi Mitra Bukalapak</option>
+                                <option value="false">❌ Aplikasi / Platform Lainnya</option>
+                            </select>
+                        </div>
+
                         <!-- Dropdown Kategori Pemasukan Lain -->
                         <div id="trx-lain-sel" class="hidden">
                             <label class="block text-[11px] font-bold text-slate-500 mb-1">Jenis Pemasukan</label>
@@ -729,7 +755,7 @@
         }
 
         async function simpanKeGoogleDrive() {
-            if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('MASUKKAN_CLIENT_ID')) {
+            if (GOOGLE_CLIENT_ID.includes('MASUKKAN_CLIENT_ID')) {
                 tampilkanModal("Info Tim IT", "Client ID Google API belum dikonfigurasi dalam source code. Fitur Google Drive memerlukan Client ID OAuth 2.0 yang valid.");
                 return;
             }
@@ -742,6 +768,7 @@
                 let dataTrx = State.transactions.map(t => ({
                     'Tanggal': t.timestamp ? t.timestamp.substring(0, 10) : '-',
                     'Kategori': t.type === 'fisik' ? 'Produk Fisik' : (t.type === 'virtual' ? 'Produk Virtual' : 'Pemasukan Lain'),
+                    'Platform': t.type === 'virtual' ? (t.isMBL !== false ? 'Mitra Bukalapak' : 'Aplikasi Lain') : '-',
                     'Nama / Keterangan': t.name,
                     'Harga Jual (Rp)': t.type === 'lain' ? '-' : t.price,
                     'Untung Bersih (Rp)': t.profit,
@@ -1093,6 +1120,7 @@
             
             const selV = document.getElementById('trx-virtual-sel');
             const selL = document.getElementById('trx-lain-sel');
+            const selMBL = document.getElementById('trx-mbl-sel');
             const wrapHarga = document.getElementById('trx-wrap-harga');
             const wrapQty = document.getElementById('trx-wrap-qty');
             const lblN = document.getElementById('lbl-trx-nama');
@@ -1102,19 +1130,19 @@
 
             if(tab === 'fisik') {
                 btnF.className = activeClass;
-                selV.classList.add('hidden'); selL.classList.add('hidden');
+                selV.classList.add('hidden'); selL.classList.add('hidden'); selMBL.classList.add('hidden');
                 wrapHarga.classList.remove('hidden'); wrapQty.classList.remove('hidden');
                 lblN.innerText = "Nama Produk Fisik"; inpN.placeholder = "Contoh: Beras 5Kg";
                 lblUntung.innerText = "Untung Bersih (Rp)"; colUntung.classList.remove('col-span-2');
             } else if(tab === 'virtual') {
                 btnV.className = activeClass;
-                selV.classList.remove('hidden'); selL.classList.add('hidden');
+                selV.classList.remove('hidden'); selL.classList.add('hidden'); selMBL.classList.remove('hidden');
                 wrapHarga.classList.remove('hidden'); wrapQty.classList.remove('hidden');
                 lblN.innerText = "Detail / Nomor (Opsional)"; inpN.placeholder = "Contoh: 0812xxxx (No HP)";
                 lblUntung.innerText = "Untung Bersih (Rp)"; colUntung.classList.remove('col-span-2');
             } else {
                 btnL.className = activeClass;
-                selV.classList.add('hidden'); selL.classList.remove('hidden');
+                selV.classList.add('hidden'); selL.classList.remove('hidden'); selMBL.classList.add('hidden');
                 wrapHarga.classList.add('hidden'); wrapQty.classList.add('hidden');
                 lblN.innerText = "Keterangan Pemasukan"; inpN.placeholder = "Opsional: Tambahan info";
                 lblUntung.innerText = "Nominal Pemasukan (Rp)"; colUntung.classList.add('col-span-2');
@@ -1153,6 +1181,7 @@
             let profit = parseInt(document.getElementById('inp-trx-untung').value.replace(/\D/g,'')) || 0;
             let price = 0;
             let qty = 1;
+            let isMBL = true;
 
             if(trxActiveTab !== 'lain') {
                 price = parseInt(document.getElementById('inp-trx-harga').value.replace(/\D/g,'')) || 0;
@@ -1160,6 +1189,7 @@
                 
                 if(trxActiveTab === 'virtual') {
                     let cat = document.getElementById('inp-trx-v-kategori').value;
+                    isMBL = document.getElementById('inp-trx-v-mbl').value === 'true';
                     if(cat === 'Lainnya' && !name) { tampilkanModal("Perhatian", "Tulis nama produk virtualnya!"); return; }
                     name = cat === 'Lainnya' ? name : `${cat} ${name ? '('+name+')' : ''}`;
                 } else {
@@ -1177,7 +1207,7 @@
                 price = profit; 
             }
 
-            const newTrx = { id: Date.now(), type: trxActiveTab, name: name, price: price, profit: profit, qty: qty, timestamp: timestamp };
+            const newTrx = { id: Date.now(), type: trxActiveTab, name: name, price: price, profit: profit, qty: qty, timestamp: timestamp, isMBL: isMBL };
             if(!State.transactions) State.transactions = [];
             State.transactions.push(newTrx); 
             
@@ -1216,13 +1246,24 @@
             const rekap = getRekapActuals();
 
             let sortedTrx = [...State.transactions].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            let totalVirtualMBL = 0;
 
             sortedTrx.forEach((t, index) => {
                 let totU = t.profit * t.qty;
                 let displayDate = new Date(t.timestamp).toLocaleDateString('id-ID', {day: '2-digit', month: 'short'});
                 
                 let iconClass = 'ph-package';
-                if(t.type === 'virtual') iconClass = 'ph-device-mobile';
+                let mblBadge = '';
+
+                if(t.type === 'virtual') {
+                    iconClass = 'ph-device-mobile';
+                    if(t.isMBL !== false) {
+                        mblBadge = '<span class="text-[8px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-200 font-bold ml-1 align-middle">MBL</span>';
+                        totalVirtualMBL += (t.qty || 1);
+                    } else {
+                        mblBadge = '<span class="text-[8px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 font-bold ml-1 align-middle">Lain</span>';
+                    }
+                }
                 if(t.type === 'lain') iconClass = 'ph-wallet text-green-500';
 
                 if(index < 15) { 
@@ -1230,7 +1271,7 @@
                         <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm mb-2">
                             <div class="w-2/3 pr-2">
                                 <div class="text-[11px] font-extrabold text-slate-800 truncate flex items-center gap-1.5 mb-1">
-                                    <i class="ph-fill ${iconClass} text-slate-400"></i> ${t.name}
+                                    <i class="ph-fill ${iconClass} text-slate-400"></i> ${t.name} ${mblBadge}
                                 </div>
                                 <div class="text-[9px] text-slate-400 font-bold mb-0.5">${displayDate}</div>
                                 ${t.type !== 'lain' ? `<div class="text-[10px] text-slate-500 font-medium">Terjual: <span class="font-bold text-slate-700">${t.qty}x</span> | Bati: <span class="text-slate-600">${formatRp(t.profit)}</span>/pcs</div>` : `<div class="text-[10px] text-slate-500 font-medium">Kategori: <span class="font-bold text-green-600">Pemasukan Lain</span></div>`}
@@ -1246,11 +1287,16 @@
 
             if(State.transactions.length === 0) list.innerHTML = `<div class="text-center text-[11px] text-slate-400 py-4 font-medium">Belum ada transaksi dicatat.</div>`;
 
+            // Update Misi Habit 1000 Transaksi
+            let pct1000 = Math.min(100, (totalVirtualMBL / 1000) * 100);
+            document.getElementById('habit-1000-text').innerText = `${totalVirtualMBL.toLocaleString('id-ID')} / 1.000`;
+            document.getElementById('habit-1000-bar').style.width = `${pct1000}%`;
+
             document.getElementById('rek-untung-hari').innerText = formatRp(rekap.untungHari);
             document.getElementById('rek-untung-minggu').innerText = formatRp(rekap.untungMinggu);
             document.getElementById('rek-untung-bulan').innerText = formatRp(rekap.untungBulan);
 
-            updateBannerPrioritas(); // Panggil update logika prioritas
+            updateBannerPrioritas(); 
         }
 
         function hitungCepat() {
@@ -1533,6 +1579,7 @@
             let data = State.transactions.map(t => ({
                 'Tanggal': t.timestamp ? t.timestamp.substring(0, 10) : '-',
                 'Kategori': t.type === 'fisik' ? 'Produk Fisik' : (t.type === 'virtual' ? 'Produk Virtual' : 'Pemasukan Lain'),
+                'Platform': t.type === 'virtual' ? (t.isMBL !== false ? 'Mitra Bukalapak' : 'Aplikasi Lain') : '-',
                 'Nama / Keterangan': t.name,
                 'Harga Jual': t.type === 'lain' ? '-' : t.price,
                 'Untung Bersih': t.profit,
@@ -1571,6 +1618,7 @@
                 let dataTrx = State.transactions.map(t => ({
                     'Tanggal': t.timestamp ? t.timestamp.substring(0, 10) : '-',
                     'Kategori': t.type === 'fisik' ? 'Produk Fisik' : (t.type === 'virtual' ? 'Produk Virtual' : 'Pemasukan Lain'),
+                    'Platform': t.type === 'virtual' ? (t.isMBL !== false ? 'Mitra Bukalapak' : 'Aplikasi Lain') : '-',
                     'Nama / Keterangan': t.name,
                     'Harga Jual (Rp)': t.type === 'lain' ? '-' : t.price,
                     'Untung Bersih (Rp)': t.profit,
